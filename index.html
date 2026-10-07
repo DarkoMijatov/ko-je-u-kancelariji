@@ -1,0 +1,959 @@
+<!doctype html>
+<html lang="sr-Latn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ko je u kancelariji</title>
+
+<script>
+  window.APP_CONFIG = {
+    url: "https://heyvzwokdjvtsczxwljy.supabase.co",
+    key: "sb_publishable_Ulof1v8APSewgE6uZYW37Q_1Xs_2lyS"
+  };
+</script>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: jedna kolona kao tabla dežurstava. Traka od 5 radnih dana je sažetak pokrivenosti,
+   ispod nje ko je gde za izabrani dan, zatim lična prijava, pa spisak celog tima. */
+:root {
+  --bg: #EDF0F5;
+  --surface: #FBFCFE;
+  --surface-2: #E2E8F1;
+  --ink: #121A2B;
+  --muted: #55617A;
+  --line: #C9D2E0;
+  --accent: #2443C4;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #DCE3FB;
+  --ok: #17703F;
+  --warn: #8A5200;
+  --warn-soft: #FBEAC6;
+  --bad: #B43024;
+  --font-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r: 10px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0E131D; --surface: #171E2B; --surface-2: #222B3B; --ink: #E8ECF4; --muted: #9AA5BA; --line: #303B4F;
+    --accent: #8098FF; --accent-ink: #0B1020; --accent-soft: #232F5C;
+    --ok: #5FD097; --warn: #F0B755; --warn-soft: #3A2C10; --bad: #FF8A7C;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.45;
+  padding-inline: 16px;
+  padding-block: 20px 72px;
+}
+.wrap, .stack { max-width: 920px; margin-inline: auto; display: grid; gap: 20px; }
+h1, h2, h3, p, ul { margin: 0; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(26px, 6vw, 38px); line-height: 1.05; letter-spacing: -0.01em; text-wrap: balance; }
+h2 { font-family: var(--font-display); font-weight: 700; font-size: 19px; line-height: 1.2; }
+h3 { font-size: 15px; font-weight: 600; }
+.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+.num { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: default; opacity: 0.6; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 8px;
+  padding: 8px 14px; font-weight: 500; min-height: 38px;
+}
+.btn:hover:not(:disabled) { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.btn.danger { color: var(--bad); border-color: var(--bad); background: transparent; }
+.btn.quiet { background: transparent; }
+.btn.link { border: 0; background: none; padding: 0; min-height: 0; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+input[type="text"], input[type="email"], input[type="number"], select {
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; min-height: 38px; width: 100%;
+}
+
+/* Ulaz: prijava, čekanje, poruke */
+.gate { max-width: 440px; margin-inline: auto; margin-top: 6vh; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 22px 20px; display: grid; gap: 14px; }
+.gate form { display: grid; gap: 10px; }
+.gate label { font-size: 13px; font-weight: 500; color: var(--muted); }
+.gate .code { font-family: var(--font-data); font-size: 22px; letter-spacing: 0.2em; text-align: center; }
+
+/* Zaglavlje */
+.top { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: flex-end; justify-content: space-between; }
+.brand { display: grid; gap: 6px; min-width: 0; }
+.rule { color: var(--muted); max-width: 62ch; }
+.rule strong { color: var(--ink); font-weight: 600; }
+.userbar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; font-size: 13px; color: var(--muted); }
+.userbar .who { overflow-wrap: anywhere; }
+
+.notice { border-left: 4px solid var(--warn); background: var(--warn-soft); padding: 10px 14px; border-radius: 6px; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; display: grid; gap: 14px; }
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.field { display: grid; gap: 4px; min-width: 0; }
+.field label { font-size: 13px; font-weight: 500; color: var(--muted); }
+.block { display: grid; gap: 12px; }
+.calc { background: var(--accent-soft); border-radius: 8px; padding: 10px 12px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.row.end { align-items: flex-end; }
+.row .field { flex: 1 1 180px; }
+.help { font-size: 13px; color: var(--muted); max-width: 70ch; }
+.sub { display: grid; gap: 10px; padding-top: 14px; border-top: 1px solid var(--line); }
+.mlist { list-style: none; padding: 0; display: grid; }
+.mlist li { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.mlist li:last-child { border-bottom: 0; }
+.mlist .id { display: grid; min-width: 0; }
+.mlist .id b { font-weight: 600; overflow-wrap: anywhere; }
+.mlist .id span { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+.tag { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); border-radius: 4px; padding: 1px 6px; margin-left: 6px; }
+.confirm { background: var(--warn-soft); border-radius: 8px; padding: 10px 12px; display: grid; gap: 10px; }
+
+/* Navigacija nedelje */
+.weeknav { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.weeknav .label { font-family: var(--font-display); font-weight: 500; font-size: 17px; margin-inline: 6px; }
+.weeknav .spacer { flex: 1 1 0; }
+.icon-btn { width: 38px; padding: 0; display: inline-grid; place-items: center; font-size: 18px; line-height: 1; }
+
+/* Traka dana */
+.board { display: grid; gap: 12px; }
+.days { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.day {
+  display: grid; gap: 6px; text-align: left; min-width: 0;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+  padding: 10px 10px 9px; border-bottom-width: 4px;
+}
+.day[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.day.ok { border-bottom-color: var(--ok); }
+.day.warn { border-bottom-color: var(--warn); }
+.day.bad { border-bottom-color: var(--bad); }
+.day .dname { font-weight: 600; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; }
+.day .ddate { font-size: 12px; color: var(--muted); }
+.day .today { color: var(--accent); font-weight: 600; }
+.day .count { font-family: var(--font-data); font-variant-numeric: tabular-nums; font-size: clamp(18px, 5vw, 26px); line-height: 1; }
+.day .count small { font-size: 0.55em; color: var(--muted); }
+.meter { position: relative; height: 6px; background: var(--surface-2); border-radius: 3px; }
+.meter i { position: absolute; inset: 0 auto 0 0; background: var(--accent); border-radius: 3px; }
+.meter b { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink); }
+.state { font-size: 12px; font-weight: 600; overflow-wrap: anywhere; }
+.ok .state { color: var(--ok); } .warn .state { color: var(--warn); } .bad .state { color: var(--bad); }
+
+/* Detalj dana */
+.detail-head { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; justify-content: space-between; }
+.groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px 20px; }
+.group { display: grid; gap: 6px; align-content: start; min-width: 0; }
+.group h3 { font-size: 13px; color: var(--muted); display: flex; gap: 6px; align-items: baseline; }
+.names { display: flex; flex-wrap: wrap; gap: 6px; }
+.person { border-radius: 999px; padding: 3px 10px; font-size: 14px; overflow-wrap: anywhere; }
+.person.office { background: var(--accent); color: var(--accent-ink); }
+.person.home { box-shadow: inset 0 0 0 1.5px var(--accent); color: var(--accent); }
+.person.off, .person.none { box-shadow: inset 0 0 0 1px var(--line); color: var(--muted); }
+.empty { color: var(--muted); font-size: 14px; }
+
+/* Moja nedelja */
+.mine-head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
+.quota { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; }
+.quota span { display: inline-flex; gap: 6px; align-items: center; }
+.pips { display: inline-flex; gap: 3px; }
+.pips i { width: 9px; height: 9px; border-radius: 2px; box-shadow: inset 0 0 0 1.5px var(--accent); }
+.pips i.on { background: var(--accent); }
+.mine-rows { display: grid; gap: 8px; }
+.mine-row { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px; align-items: center; }
+.mine-row .when { display: grid; line-height: 1.2; }
+.mine-row .when b { font-weight: 600; }
+.mine-row .when span { font-size: 12px; color: var(--muted); }
+.seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.seg button {
+  border: 1px solid var(--line); background: var(--bg); border-radius: 8px; min-height: 40px;
+  padding: 6px 4px; font-size: 14px; font-weight: 500; overflow-wrap: anywhere;
+}
+.seg button:hover { border-color: var(--accent); }
+.seg button[aria-pressed="true"].office { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.seg button[aria-pressed="true"].home { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.seg button[aria-pressed="true"].off { background: var(--surface-2); border-style: dashed; border-color: var(--muted); }
+.seg button.locked { color: var(--muted); border-style: dashed; background: transparent; }
+.msg { font-size: 14px; color: var(--bad); }
+.nick { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 14px; color: var(--muted); }
+.nick input { width: min(220px, 100%); color: var(--ink); }
+.nick strong { color: var(--ink); font-weight: 600; }
+
+/* Spisak tima */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 8px 4px; text-align: center; border-bottom: 1px solid var(--line); }
+th { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+th:first-child, td:first-child { text-align: left; padding-left: 0; overflow-wrap: anywhere; }
+td:first-child { font-weight: 500; }
+tr:last-child td { border-bottom: 0; }
+th.sel, td.sel { background: var(--accent-soft); }
+.chip { display: inline-block; min-width: 46px; border-radius: 6px; padding: 3px 5px; font-size: 12px; font-weight: 600; }
+.chip.office { background: var(--accent); color: var(--accent-ink); }
+.chip.home { box-shadow: inset 0 0 0 1.5px var(--accent); color: var(--accent); }
+.chip.off { box-shadow: inset 0 0 0 1px var(--muted); color: var(--muted); }
+.chip.none { color: var(--muted); font-weight: 400; }
+td.num { white-space: nowrap; }
+.met { color: var(--ok); } .unmet { color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--muted); align-items: center; }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+
+#toast {
+  position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%);
+  background: var(--ink); color: var(--bg); padding: 9px 16px; border-radius: 999px;
+  font-size: 14px; font-weight: 500; max-width: calc(100% - 32px);
+}
+
+@media (max-width: 520px) {
+  .days { gap: 5px; }
+  .day { padding: 8px 6px 7px; }
+  .day .dname { font-size: 12px; }
+  .day .state { font-size: 11px; }
+  .panel { padding: 14px 12px; }
+  .mine-row { grid-template-columns: 64px minmax(0, 1fr); gap: 8px; }
+  .seg button { font-size: 13px; }
+  .chip { min-width: 0; padding: 3px 4px; font-size: 11px; }
+  th, td { padding: 7px 2px; }
+  td.num { font-size: 12px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .meter i { transition: width 0.25s ease; }
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div class="wrap">
+  <section class="gate" id="gate" aria-live="polite"></section>
+
+  <div class="stack" id="board" hidden>
+    <header class="top">
+      <div class="brand">
+        <p class="eyebrow">Evidencija dolazaka</p>
+        <h1 id="teamName">Naš tim</h1>
+        <p class="rule" id="rule"></p>
+      </div>
+      <div class="userbar">
+        <span class="who" id="who"></span>
+        <button class="btn" id="btnAdmin" type="button" hidden>Podešavanja tima</button>
+        <button class="btn quiet" id="btnSignOut" type="button">Odjavi se</button>
+      </div>
+    </header>
+
+    <div class="notice" id="notice" hidden></div>
+
+    <section class="panel" id="admin" hidden aria-labelledby="adminTitle">
+      <h2 id="adminTitle">Podešavanja tima</h2>
+
+      <form id="settingsForm" class="block" novalidate>
+        <div class="fields">
+          <div class="field"><label for="fTeam">Naziv tima</label><input id="fTeam" type="text" maxlength="60" autocomplete="off"></div>
+          <div class="field"><label for="fSize">Broj članova</label><input id="fSize" type="number" min="1" max="500" step="1" inputmode="numeric"></div>
+          <div class="field"><label for="fOffice">Dana iz kancelarije nedeljno</label><input id="fOffice" type="number" min="0" max="5" step="1" inputmode="numeric"></div>
+          <div class="field"><label for="fHome">Dana od kuće nedeljno</label><input id="fHome" type="number" min="0" max="5" step="1" inputmode="numeric"></div>
+        </div>
+        <p class="calc" id="fCalc"></p>
+        <div class="row"><button class="btn primary" type="submit">Sačuvaj podešavanja</button></div>
+        <p class="help">Dani iz kancelarije i dani od kuće zajedno daju 5 radnih dana, pa se drugo polje samo prilagođava.</p>
+      </form>
+
+      <div class="sub">
+        <h3>Članovi tima</h3>
+        <p class="help">Prijaviti se mogu samo adrese sa ovog spiska. Kada nekoga dodaš, pošalji mu link ka ovoj stranici.</p>
+        <ul class="mlist" id="memberList"></ul>
+        <form id="addForm" class="row end" novalidate>
+          <div class="field"><label for="fNewEmail">Mejl adresa</label><input id="fNewEmail" type="email" autocomplete="off" maxlength="120"></div>
+          <div class="field"><label for="fNewName">Ime za prikaz</label><input id="fNewName" type="text" autocomplete="off" maxlength="40"></div>
+          <button class="btn primary" type="submit">Dodaj člana</button>
+        </form>
+      </div>
+
+      <div class="sub">
+        <h3>Prenos admin uloge</h3>
+        <p class="help">Admin je uvek jedna osoba. Posle prenosa podešavanja i spisak članova menja samo novi admin, a ti ostaješ običan član.</p>
+        <div id="transferBox" class="block"></div>
+      </div>
+
+      <p class="msg" id="adminMsg" role="alert" hidden></p>
+      <div class="row"><button class="btn quiet" type="button" id="adminClose">Zatvori</button></div>
+    </section>
+
+    <nav class="weeknav" aria-label="Izbor nedelje">
+      <button class="btn icon-btn" id="prevWeek" type="button" aria-label="Prethodna nedelja">‹</button>
+      <span class="label" id="weekLabel"></span>
+      <button class="btn icon-btn" id="nextWeek" type="button" aria-label="Sledeća nedelja">›</button>
+      <span class="spacer"></span>
+      <button class="btn quiet" id="thisWeek" type="button">Ova nedelja</button>
+    </nav>
+
+    <section class="board" aria-label="Pokrivenost kancelarije po danima">
+      <div class="days" id="days"></div>
+      <div class="panel" id="detail"></div>
+    </section>
+
+    <section class="panel" id="mine" aria-labelledby="mineTitle"></section>
+    <section class="panel" id="roster" aria-labelledby="rosterTitle"></section>
+  </div>
+</div>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var WORKDAYS = 5;
+  var DAY_SHORT = ["Pon", "Uto", "Sre", "Čet", "Pet"];
+  var DAY_FULL = ["ponedeljak", "utorak", "sreda", "četvrtak", "petak"];
+  var DAY_ACC = ["ponedeljak", "utorak", "sredu", "četvrtak", "petak"];
+  var MON_SHORT = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "avg", "sep", "okt", "nov", "dec"];
+  var MON_FULL = ["januar", "februar", "mart", "april", "maj", "jun", "jul", "avgust", "septembar", "oktobar", "novembar", "decembar"];
+  var STATUS = {
+    office: { label: "Kancelarija", short: "Kanc.", group: "U kancelariji" },
+    home: { label: "Od kuće", short: "Kuća", group: "Od kuće" },
+    off: { label: "Odsutan", short: "Ods.", group: "Odsutni" }
+  };
+  var ORDER = ["office", "home", "off"];
+
+  /* ---------- datumi ---------- */
+  function pad(n) { return n < 10 ? "0" + n : "" + n; }
+  function keyOf(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function parseKey(k) { var p = k.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function addDays(d, n) { var x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() + n); return x; }
+  function mondayOf(d) { return addDays(d, -((d.getDay() + 6) % 7)); }
+  function weekKeys(ws) { return [0, 1, 2, 3, 4].map(function (i) { return keyOf(addDays(ws, i)); }); }
+  function todayKey() { return keyOf(new Date()); }
+  function defaultWeek() {
+    var now = new Date(), wd = now.getDay();
+    return mondayOf(addDays(now, wd === 6 ? 2 : wd === 0 ? 1 : 0));
+  }
+  function defaultSel(ws) {
+    var keys = weekKeys(ws), t = todayKey();
+    return keys.indexOf(t) >= 0 ? t : keys[0];
+  }
+  function plural(n, one, few, many) {
+    var m10 = n % 10, m100 = n % 100;
+    if (m10 === 1 && m100 !== 11) return one;
+    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+    return many;
+  }
+
+  /* ---------- stanje ---------- */
+  var S = {
+    view: "loading",            // setup | loading | signin | code | bootstrap | notmember | error | app
+    gateEmail: "", gateMsg: "", gateBusy: false,
+    sessionEmail: "",
+    email: null, isAdmin: false,
+    cfg: { teamName: "", size: 10, officeDays: 2, homeDays: 3 },
+    members: [], teamLoaded: false,
+    days: {}, weekLoaded: false,
+    week: defaultWeek(), sel: null,
+    mineMsg: "", nickEdit: false,
+    removeAsk: null, transferAsk: false
+  };
+  S.sel = defaultSel(S.week);
+
+  var sb = null, channel = null, pollTimer = null, softTimer = null;
+  var pending = 0, chain = Promise.resolve(), sessionUser;
+
+  function has(o, k) { return Object.prototype.hasOwnProperty.call(o, k); }
+  function clampInt(v, lo, hi, dflt) {
+    var n = Math.round(Number(v));
+    if (!isFinite(n)) return dflt;
+    return Math.min(hi, Math.max(lo, n));
+  }
+
+  /* ---------- izvedene vrednosti (ista pravila kao u bazi, funkcija set_checkin) ---------- */
+  function daysOf(email) { return S.days[email] || {}; }
+  function statusOf(email, key) { var v = daysOf(email)[key]; return has(STATUS, v) ? v : null; }
+  function emails() { return S.members.map(function (m) { return m.email; }); }
+  function member(email) { for (var i = 0; i < S.members.length; i++) if (S.members[i].email === email) return S.members[i]; return null; }
+  function nameOf(email) { var m = member(email); return (m && m.name) || String(email).split("@")[0]; }
+  function teamN() { return Math.max(S.cfg.size, S.members.length); }
+  function minPerDay() { return Math.floor(S.cfg.size * S.cfg.officeDays / WORKDAYS); }
+  function counts(key) {
+    var c = { office: [], home: [], off: [], none: [] };
+    emails().forEach(function (e) { c[statusOf(e, key) || "none"].push(e); });
+    return c;
+  }
+  function weekTally(email, keys) {
+    var t = { office: 0, home: 0, off: 0 };
+    keys.forEach(function (k) { var s = statusOf(email, k); if (s) t[s]++; });
+    return t;
+  }
+  function requiredOffice(offDays) { return Math.round(S.cfg.officeDays * (WORKDAYS - offDays) / WORKDAYS); }
+  function homeLimit(offDays) { return Math.max(0, Math.min(S.cfg.homeDays, WORKDAYS - offDays - requiredOffice(offDays))); }
+
+  function dayState(key, c) {
+    var min = minPerDay(), missing = min - c.office.length;
+    if (missing <= 0) return { kind: "ok", text: "U redu" };
+    var reachable = teamN() - c.home.length - c.off.length;
+    if (key < todayKey() || reachable < min) return { kind: "bad", text: "Fali " + missing };
+    return { kind: "warn", text: "Još " + missing };
+  }
+
+  function homeCheck(key) {
+    var d = parseKey(key), keys = weekKeys(mondayOf(d)), home = 0, off = 0;
+    keys.forEach(function (k) {
+      if (k === key) return;
+      var s = statusOf(S.email, k);
+      if (s === "home") home++; else if (s === "off") off++;
+    });
+    var limit = homeLimit(off);
+    if (home >= limit) return { ok: false, reason: limit === 0 ? TEXT.HOME_NONE : homeLimitText(home) };
+    var c = counts(key), min = minPerDay();
+    var others = c.home.concat(c.off).filter(function (e) { return e !== S.email; }).length;
+    if (teamN() - others - 1 < min) return { ok: false, reason: homeFullText(d, min) };
+    return { ok: true };
+  }
+  function homeLimitText(home) { return "Već imaš " + home + " " + plural(home, "dan", "dana", "dana") + " od kuće ove nedelje, a to je maksimum."; }
+  function homeFullText(d, min) { return "Za " + DAY_ACC[(d.getDay() + 6) % 7] + " je rad od kuće popunjen. U kancelariji mora da bude najmanje " + min + ", pa izaberi drugi dan."; }
+
+  var TEXT = {
+    HOME_NONE: "Ove nedelje nemaš dana od kuće na raspolaganju.",
+    HOME_LIMIT: "Dostigao si nedeljni maksimum dana od kuće.",
+    HOME_FULL: "Rad od kuće je za taj dan popunjen, izaberi drugi dan.",
+    NOT_MEMBER: "Tvoja adresa više nije na spisku tima.",
+    NOT_ADMIN: "Ovo može samo admin tima.",
+    NOT_WORKDAY: "Prijava je moguća samo za radne dane.",
+    ALREADY_MEMBER: "Ta adresa je već na spisku.",
+    BAD_EMAIL: "Mejl adresa nije ispravna.",
+    BAD_SETTINGS: "Podešavanja nisu ispravna.",
+    CANNOT_REMOVE_ADMIN: "Admin ne može da bude uklonjen. Prvo prenesi admin ulogu.",
+    NOT_FOUND: "Taj član više nije na spisku.",
+    TEAM_EXISTS: "Tim je već napravljen. Zamoli admina da te doda na spisak.",
+    ALREADY_ADMIN: "Ta osoba je već admin."
+  };
+  function errText(e, fallback) {
+    var m = (e && e.message) || "";
+    for (var k in TEXT) if (has(TEXT, k) && m.indexOf(k) >= 0) return TEXT[k];
+    return fallback || "Nije uspelo. Proveri vezu i pokušaj ponovo.";
+  }
+
+  /* ---------- DOM pomoć ---------- */
+  function h(tag, attrs) {
+    var el = document.createElement(tag), k, v, i;
+    if (attrs) for (k in attrs) {
+      v = attrs[k];
+      if (v == null || v === false) continue;
+      if (k === "class") el.className = v;
+      else if (k === "text") el.textContent = v;
+      else if (k.slice(0, 2) === "on") el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? "" : v);
+    }
+    for (i = 2; i < arguments.length; i++) append(el, arguments[i]);
+    return el;
+  }
+  function append(el, kid) {
+    if (kid == null || kid === false) return;
+    if (Array.isArray(kid)) { kid.forEach(function (k) { append(el, k); }); return; }
+    el.appendChild(kid.nodeType ? kid : document.createTextNode(String(kid)));
+  }
+  function $(id) { return document.getElementById(id); }
+  function fill(el, kids) { el.textContent = ""; append(el, kids); }
+
+  var toastTimer = null;
+  function toast(text) {
+    var t = $("toast");
+    t.textContent = text; t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.hidden = true; }, 2800);
+  }
+
+  /* ====================================================================
+     ULAZ: prijava mejlom
+     ==================================================================== */
+  function show() {
+    var app = S.view === "app";
+    $("gate").hidden = app; $("board").hidden = !app;
+    if (app) { renderApp(); renderAdminLists(); } else renderGate();
+  }
+
+  function renderGate() {
+    var kids = [h("p", { class: "eyebrow", text: "Evidencija dolazaka" }), h("h1", { text: "Ko je u kancelariji" })];
+    var msg = S.gateMsg ? h("p", { class: "msg", role: "alert", text: S.gateMsg }) : null;
+    var v = S.view;
+
+    if (v === "setup") {
+      kids.push(h("p", { text: "Aplikacija još nije povezana sa bazom. Na vrhu fajla index.html upiši adresu Supabase projekta i publishable ključ, kako piše u uputstvu." }));
+    } else if (v === "loading") {
+      kids.push(h("p", { class: "muted", text: "Učitavam…" }));
+    } else if (v === "error" && !sb) {
+      kids.push(msg, h("button", { class: "btn", type: "button", text: "Osveži stranicu", onclick: function () { location.reload(); } }));
+    } else if (v === "error") {
+      kids.push(msg, h("button", { class: "btn", type: "button", text: "Pokušaj ponovo", onclick: function () { S.gateMsg = ""; S.view = "loading"; show(); identify(); } }),
+        h("button", { class: "btn link", type: "button", text: "Odjavi se", onclick: signOut }));
+    } else if (v === "signin") {
+      var email = h("input", { id: "gEmail", type: "email", autocomplete: "email", required: true, value: S.gateEmail, placeholder: "ime@firma.rs" });
+      kids.push(h("p", { text: "Upiši svoju mejl adresu. Poslaćemo ti kod za prijavu, bez lozinke." }),
+        h("form", { novalidate: true, onsubmit: function (e) { e.preventDefault(); sendCode(email.value); } },
+          h("label", { for: "gEmail", text: "Mejl adresa" }), email,
+          h("button", { class: "btn primary", type: "submit", disabled: S.gateBusy, text: S.gateBusy ? "Šaljem…" : "Pošalji kod" })),
+        msg);
+    } else if (v === "code") {
+      var code = h("input", { id: "gCode", class: "code", type: "text", inputmode: "numeric", autocomplete: "one-time-code", maxlength: "10", "aria-label": "Kod iz mejla" });
+      kids.push(h("p", null, "Poslali smo mejl na ", h("strong", { text: S.gateEmail }), ". Upiši kod iz mejla ili klikni na link u njemu."),
+        h("form", { novalidate: true, onsubmit: function (e) { e.preventDefault(); verifyCode(code.value); } },
+          h("label", { for: "gCode", text: "Kod" }), code,
+          h("button", { class: "btn primary", type: "submit", disabled: S.gateBusy, text: S.gateBusy ? "Proveravam…" : "Prijavi se" })),
+        msg,
+        h("div", { class: "row" },
+          h("button", { class: "btn link", type: "button", text: "Pošalji ponovo", onclick: function () { sendCode(S.gateEmail); } }),
+          h("button", { class: "btn link", type: "button", text: "Druga adresa", onclick: function () { S.view = "signin"; S.gateMsg = ""; show(); } })),
+        h("p", { class: "help", text: "Mejl stiže za najviše minut. Ako ga nema, pogledaj i neželjenu poštu." }));
+    } else if (v === "bootstrap") {
+      var name = h("input", { id: "gName", type: "text", maxlength: "40", autocomplete: "name" });
+      kids.push(h("p", null, "Prijavljen si kao ", h("strong", { text: S.sessionEmail }), ". Tim još ne postoji. Ko ga napravi postaje admin: podešava pravila i dodaje članove."),
+        h("form", { novalidate: true, onsubmit: function (e) { e.preventDefault(); claim(name.value); } },
+          h("label", { for: "gName", text: "Tvoje ime za prikaz" }), name,
+          h("button", { class: "btn primary", type: "submit", disabled: S.gateBusy, text: "Napravi tim" })),
+        msg, h("button", { class: "btn link", type: "button", text: "Odjavi se", onclick: signOut }));
+    } else if (v === "notmember") {
+      kids.push(h("p", null, "Prijavljen si kao ", h("strong", { text: S.sessionEmail }), ", ali ta adresa nije na spisku tima."),
+        h("p", { text: "Zamoli admina tima da te doda, pa osveži stranicu." }),
+        h("div", { class: "row" },
+          h("button", { class: "btn", type: "button", text: "Proveri ponovo", onclick: function () { S.view = "loading"; show(); identify(); } }),
+          h("button", { class: "btn quiet", type: "button", text: "Odjavi se", onclick: signOut })));
+    }
+    fill($("gate"), kids);
+    var focus = v === "signin" ? $("gEmail") : v === "code" ? $("gCode") : v === "bootstrap" ? $("gName") : null;
+    if (focus) focus.focus();
+  }
+
+  function authErrText(e) {
+    var m = ((e && e.message) || "").toLowerCase(), code = (e && e.code) || "";
+    if (e && e.status === 403 && m.indexOf("spisku") >= 0) return "Ova adresa nije na spisku tima. Zamoli admina da te doda.";
+    if (code === "over_email_send_rate_limit" || m.indexOf("rate limit") >= 0 || (e && e.status === 429)) return "Previše zahteva za kratko vreme. Sačekaj minut pa pokušaj ponovo.";
+    if (m.indexOf("not authorized") >= 0) return "Slanje mejlova još nije podešeno u bazi (SMTP). Javi adminu tima.";
+    if (code === "otp_expired" || m.indexOf("expired") >= 0 || m.indexOf("invalid") >= 0) return "Kod nije ispravan ili je istekao. Zatraži novi.";
+    if (m.indexOf("signups not allowed") >= 0) return "Prijava novih adresa je isključena u bazi. Javi adminu tima.";
+    return "Nije uspelo. Proveri vezu i pokušaj ponovo.";
+  }
+
+  function sendCode(raw) {
+    var email = String(raw || "").trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { S.gateEmail = email; S.gateMsg = "Upiši ispravnu mejl adresu."; show(); return; }
+    S.gateEmail = email; S.gateMsg = ""; S.gateBusy = true; show();
+    sb.auth.signInWithOtp({ email: email, options: { shouldCreateUser: true, emailRedirectTo: location.origin + location.pathname } })
+      .then(function (r) {
+        S.gateBusy = false;
+        if (r.error) { S.gateMsg = authErrText(r.error); if (S.view !== "code") S.view = "signin"; }
+        else { S.view = "code"; }
+        show();
+      });
+  }
+  function verifyCode(raw) {
+    var token = String(raw || "").replace(/\D/g, "");
+    if (token.length < 6) { S.gateMsg = "Upiši ceo kod iz mejla."; show(); return; }
+    S.gateMsg = ""; S.gateBusy = true; show();
+    sb.auth.verifyOtp({ email: S.gateEmail, token: token, type: "email" }).then(function (r) {
+      S.gateBusy = false;
+      if (r.error) { S.gateMsg = authErrText(r.error); show(); }
+      /* uspeh stiže kroz onAuthStateChange */
+    });
+  }
+  function claim(name) {
+    S.gateBusy = true; S.gateMsg = ""; show();
+    rpc("claim_admin", { p_name: String(name || "").trim() }).then(function () {
+      S.gateBusy = false; S.view = "loading"; show(); identify();
+    }, function (e) { S.gateBusy = false; S.gateMsg = errText(e); show(); });
+  }
+  function signOut() { stopLive(); sb.auth.signOut(); }
+
+  /* ====================================================================
+     PODACI
+     ==================================================================== */
+  function rpc(name, args) {
+    return sb.rpc(name, args || {}).then(function (r) { if (r.error) throw r.error; return r.data; });
+  }
+
+  function enter(session) {
+    stopLive();
+    S.teamLoaded = false; S.weekLoaded = false; S.days = {}; S.members = []; S.email = null; S.isAdmin = false;
+    $("admin").hidden = true;
+    if (!session) { S.view = "signin"; S.gateBusy = false; show(); return; }
+    S.sessionEmail = (session.user && session.user.email) || "";
+    S.gateMsg = ""; S.gateBusy = false; S.view = "loading"; show();
+    identify();
+  }
+
+  function identify() {
+    return rpc("whoami").then(function (w) {
+      w = w || {};
+      S.email = w.email || null; S.isAdmin = !!w.is_admin;
+      if (w.is_member) { S.view = "app"; show(); loadTeam(); loadWeek(); startLive(); }
+      else { stopLive(); S.view = w.team_exists ? "notmember" : "bootstrap"; show(); }
+    }, function () {
+      stopLive(); S.view = "error";
+      S.gateMsg = "Baza ne odgovara. Proveri da li je schema.sql pokrenut i da Supabase projekat nije pauziran.";
+      show();
+    });
+  }
+
+  function loadTeam() {
+    return Promise.all([
+      sb.from("team_settings").select("team_name,team_size,office_days").maybeSingle(),
+      sb.from("members").select("email,display_name,is_admin").order("email")
+    ]).then(function (r) {
+      if (r[0].error || r[1].error || S.view !== "app") return;
+      var t = r[0].data;
+      if (t) {
+        var o = clampInt(t.office_days, 0, 5, 2);
+        S.cfg = { teamName: t.team_name || "", size: clampInt(t.team_size, 1, 500, 10), officeDays: o, homeDays: WORKDAYS - o };
+      }
+      S.members = (r[1].data || []).map(function (m) { return { email: m.email, name: m.display_name || "", isAdmin: !!m.is_admin }; });
+      var me = member(S.email);
+      if (!me) { identify(); return; }           // uklonjen sa spiska
+      S.isAdmin = me.isAdmin; S.teamLoaded = true;
+      if (!S.isAdmin) $("admin").hidden = true;
+      renderApp(); renderAdminLists();
+    });
+  }
+
+  function loadWeek() {
+    var keys = weekKeys(S.week), tag = keys[0];
+    return sb.from("checkins").select("email,day,status").gte("day", keys[0]).lte("day", keys[4]).then(function (r) {
+      if (r.error || S.view !== "app" || tag !== keyOf(S.week) || pending) return;
+      var d = {};
+      (r.data || []).forEach(function (row) {
+        if (!has(STATUS, row.status)) return;
+        (d[row.email] || (d[row.email] = {}))[String(row.day).slice(0, 10)] = row.status;
+      });
+      S.days = d; S.weekLoaded = true; renderApp();
+    });
+  }
+
+  function soft(team) {
+    clearTimeout(softTimer);
+    softTimer = setTimeout(function () { if (S.view !== "app") return; if (team) loadTeam(); loadWeek(); }, 300);
+  }
+  function startLive() {
+    stopLive();
+    try {
+      channel = sb.channel("team-live")
+        .on("postgres_changes", { event: "*", schema: "public", table: "checkins" }, function () { soft(false); })
+        .on("postgres_changes", { event: "*", schema: "public", table: "members" }, function () { soft(true); })
+        .on("postgres_changes", { event: "*", schema: "public", table: "team_settings" }, function () { soft(true); })
+        .subscribe();
+    } catch (e) { channel = null; }
+    /* Rezerva ako izmene uživo ne stignu: osveži na minut dok je kartica vidljiva. */
+    pollTimer = setInterval(function () { if (!document.hidden) soft(true); }, 60000);
+  }
+  function stopLive() {
+    if (channel) { try { sb.removeChannel(channel); } catch (e) {} channel = null; }
+    clearInterval(pollTimer); pollTimer = null;
+  }
+  document.addEventListener("visibilitychange", function () { if (!document.hidden && S.view === "app") soft(true); });
+
+  /* ====================================================================
+     PRIKAZ TABLE
+     ==================================================================== */
+  function renderHeader() {
+    var c = S.cfg, min = minPerDay();
+    $("teamName").textContent = c.teamName || "Naš tim";
+    fill($("rule"), [
+      h("strong", { text: c.officeDays + " " + plural(c.officeDays, "dan", "dana", "dana") + " iz kancelarije" }),
+      ", do " + c.homeDays + " od kuće. Tim od " + c.size + " " + plural(c.size, "člana", "člana", "članova") + ": ",
+      h("strong", { text: "najmanje " + min + " u kancelariji svakog dana" }), "."
+    ]);
+    $("who").textContent = S.email + (S.isAdmin ? " · admin" : "");
+    $("btnAdmin").hidden = !S.isAdmin;
+
+    var n = $("notice"), text = "";
+    if (S.teamLoaded && S.members.length > c.size) text = "Na spisku je " + S.members.length + " ljudi, a tim je podešen na " + c.size + ". Minimum po danu se računa po podešenom broju.";
+    else if (S.teamLoaded && S.isAdmin && S.members.length < c.size) text = "Na spisku je " + S.members.length + " od " + c.size + " " + plural(c.size, "člana", "člana", "članova") + ". Dodaj ostale u Podešavanjima tima da bi mogli da se prijave.";
+    n.textContent = text; n.hidden = !text;
+  }
+
+  function renderWeekNav() {
+    var a = S.week, b = addDays(a, 4), label;
+    if (a.getMonth() === b.getMonth()) label = a.getDate() + "–" + b.getDate() + ". " + MON_SHORT[a.getMonth()] + " " + b.getFullYear() + ".";
+    else label = a.getDate() + ". " + MON_SHORT[a.getMonth()] + " – " + b.getDate() + ". " + MON_SHORT[b.getMonth()] + " " + b.getFullYear() + ".";
+    $("weekLabel").textContent = label;
+    $("thisWeek").hidden = keyOf(S.week) === keyOf(defaultWeek());
+  }
+
+  function renderDays() {
+    var keys = weekKeys(S.week), min = minPerDay(), n = teamN(), today = todayKey();
+    fill($("days"), keys.map(function (key, i) {
+      var d = parseKey(key), c = counts(key), st = dayState(key, c), inOffice = c.office.length;
+      return h("button", {
+        type: "button", class: "day " + st.kind, "aria-pressed": String(key === S.sel), "data-fk": "d-" + key,
+        "aria-label": DAY_FULL[i] + " " + d.getDate() + ". " + MON_FULL[d.getMonth()] + ": " + inOffice + " u kancelariji, minimum " + min + ". " + st.text,
+        onclick: function () { S.sel = key; renderApp(); }
+      },
+        h("span", { class: "dname", text: DAY_SHORT[i] }),
+        h("span", { class: "ddate" + (key === today ? " today" : ""), text: key === today ? "danas" : d.getDate() + "." + (d.getMonth() + 1) + "." }),
+        h("span", { class: "count" }, inOffice, h("small", { text: "/" + min })),
+        h("span", { class: "meter", "aria-hidden": "true" },
+          h("i", { style: "width:" + Math.min(100, inOffice / n * 100) + "%" }),
+          min > 0 ? h("b", { style: "left:calc(" + Math.min(100, min / n * 100) + "% - 1px)" }) : null),
+        h("span", { class: "state", text: st.text })
+      );
+    }));
+  }
+
+  function sortByName(list) {
+    return list.slice().sort(function (a, b) {
+      if (a === S.email) return -1;
+      if (b === S.email) return 1;
+      return nameOf(a).localeCompare(nameOf(b), "sr");
+    });
+  }
+
+  function renderDetail() {
+    var key = S.sel, d = parseKey(key), c = counts(key), idx = (d.getDay() + 6) % 7, today = todayKey();
+    var notListed = Math.max(0, S.cfg.size - S.members.length);
+    var waiting = c.none.length + notListed;
+    var groups = ORDER.map(function (s) {
+      if (s === "off" && !c.off.length) return null;
+      return h("div", { class: "group" },
+        h("h3", null, STATUS[s].group, h("span", { class: "num", text: c[s].length })),
+        c[s].length
+          ? h("div", { class: "names" }, sortByName(c[s]).map(function (e) { return h("span", { class: "person " + s, text: nameOf(e) }); }))
+          : h("p", { class: "empty", text: s === "office" ? "Još niko se nije prijavio za kancelariju." : "Niko." }));
+    });
+    groups.push(h("div", { class: "group" },
+      h("h3", null, "Bez prijave", h("span", { class: "num", text: waiting })),
+      waiting === 0
+        ? h("p", { class: "empty", text: "Svi su se izjasnili." })
+        : h("div", { class: "names" },
+            sortByName(c.none).map(function (e) { return h("span", { class: "person none", text: nameOf(e) }); }),
+            notListed > 0 ? h("span", { class: "empty", text: (c.none.length ? "i još " : "") + notListed + " " + plural(notListed, "član koji nije na spisku", "člana koja nisu na spisku", "članova koji nisu na spisku") }) : null)));
+    fill($("detail"), [
+      h("div", { class: "detail-head" },
+        h("h2", { text: DAY_FULL[idx] + ", " + d.getDate() + ". " + MON_FULL[d.getMonth()] }),
+        h("span", { class: "muted", text: key === today ? "Danas" : key < today ? "Prošlo" : "Predstoji" })),
+      S.weekLoaded && S.teamLoaded ? h("div", { class: "groups" }, groups) : h("p", { class: "empty", text: "Učitavam prijave tima…" })
+    ]);
+  }
+
+  function pips(done, total) {
+    var out = [], i;
+    for (i = 0; i < Math.max(total, done); i++) out.push(h("i", { class: i < done ? "on" : "" }));
+    return h("span", { class: "pips", "aria-hidden": "true" }, out);
+  }
+
+  function renderMine() {
+    var el = $("mine"), keys = weekKeys(S.week), today = todayKey();
+    var head = h("div", { class: "mine-head" }, h("h2", { id: "mineTitle", text: "Tvoja nedelja" }));
+    if (!S.weekLoaded || !S.teamLoaded) { fill(el, [head, h("p", { class: "empty", text: "Učitavam…" })]); return; }
+    var t = weekTally(S.email, keys), req = requiredOffice(t.off), lim = homeLimit(t.off);
+    append(head, h("div", { class: "quota" },
+      h("span", null, "Kancelarija ", h("b", { class: "num", text: t.office + "/" + req }), pips(t.office, req)),
+      h("span", null, "Od kuće ", h("b", { class: "num", text: t.home + "/" + lim }), pips(t.home, lim))));
+
+    var rows = keys.map(function (key, i) {
+      var d = parseKey(key), cur = statusOf(S.email, key);
+      var check = cur === "home" ? { ok: true } : homeCheck(key);
+      return h("div", { class: "mine-row" },
+        h("div", { class: "when" }, h("b", { text: DAY_SHORT[i] }), h("span", { text: key === today ? "danas" : d.getDate() + "." + (d.getMonth() + 1) + "." })),
+        h("div", { class: "seg", role: "group", "aria-label": DAY_FULL[i] },
+          ORDER.map(function (s) {
+            var locked = s === "home" && !check.ok;
+            return h("button", {
+              type: "button", class: s + (locked ? " locked" : ""), "aria-pressed": String(cur === s),
+              "aria-disabled": locked ? "true" : null, title: locked ? check.reason : null, "data-fk": "m-" + key + "-" + s,
+              text: STATUS[s].label,
+              onclick: function () { pick(key, s); }
+            });
+          })));
+    });
+    fill(el, [head, h("div", { class: "mine-rows" }, rows),
+      S.mineMsg ? h("p", { class: "msg", role: "alert", text: S.mineMsg }) : null, renderNick()]);
+  }
+
+  function renderNick() {
+    if (S.nickEdit) {
+      var input = h("input", { id: "fNick", type: "text", maxlength: "40", autocomplete: "off", "aria-label": "Ime za prikaz", value: nameOf(S.email) });
+      return h("form", { class: "nick", onsubmit: function (e) {
+        e.preventDefault();
+        var v = input.value.trim().slice(0, 40), me = member(S.email);
+        S.nickEdit = false;
+        if (me) me.name = v;
+        renderApp(); renderAdminLists();
+        rpc("rename_member", { p_email: S.email, p_name: v }).then(loadTeam, function (err) { toast(errText(err)); loadTeam(); });
+      } }, h("label", { for: "fNick", text: "Ime za prikaz" }), input,
+        h("button", { class: "btn primary", type: "submit", text: "Sačuvaj" }),
+        h("button", { class: "btn quiet", type: "button", text: "Odustani", onclick: function () { S.nickEdit = false; renderMine(); } }));
+    }
+    return h("p", { class: "nick" }, h("span", null, "Tim te vidi kao ", h("strong", { text: nameOf(S.email) }), "."),
+      h("button", { class: "btn link", type: "button", "data-fk": "nick", text: "Promeni ime", onclick: function () { S.nickEdit = true; renderMine(); var f = $("fNick"); if (f) { f.focus(); f.select(); } } }));
+  }
+
+  function renderRoster() {
+    var el = $("roster"), keys = weekKeys(S.week), list = sortByName(emails());
+    var head = h("h2", { id: "rosterTitle", text: "Ceo tim" });
+    if (!S.weekLoaded || !S.teamLoaded) { fill(el, [head, h("p", { class: "empty", text: "Učitavam prijave tima…" })]); return; }
+    var thead = h("tr", null, h("th", { scope: "col", text: "Član" }),
+      keys.map(function (k, i) { return h("th", { scope: "col", class: k === S.sel ? "sel" : "", text: DAY_SHORT[i] }); }),
+      h("th", { scope: "col", title: "Dani u kancelariji ove nedelje u odnosu na obavezu", text: "Kanc." }));
+    var body = list.map(function (e) {
+      var t = weekTally(e, keys), req = requiredOffice(t.off);
+      return h("tr", null,
+        h("td", null, nameOf(e), e === S.email ? h("span", { class: "muted", text: " (ti)" }) : null),
+        keys.map(function (k) {
+          var s = statusOf(e, k);
+          return h("td", { class: k === S.sel ? "sel" : "" }, h("span", { class: "chip " + (s || "none"), title: s ? STATUS[s].label : "Bez prijave", text: s ? STATUS[s].short : "·" }));
+        }),
+        h("td", { class: "num " + (t.office >= req ? "met" : "unmet"), text: t.office + "/" + req + (t.office >= req ? " ✓" : "") }));
+    });
+    fill(el, [head,
+      h("div", { class: "table-wrap" }, h("table", null, h("thead", null, thead), h("tbody", null, body))),
+      h("div", { class: "legend" },
+        h("span", null, h("span", { class: "chip office", text: "Kanc." }), "u kancelariji"),
+        h("span", null, h("span", { class: "chip home", text: "Kuća" }), "radi od kuće"),
+        h("span", null, h("span", { class: "chip off", text: "Ods." }), "odsutan"))]);
+  }
+
+  function renderApp() {
+    var a = document.activeElement, fk = a && a.getAttribute && a.getAttribute("data-fk");
+    renderHeader(); renderWeekNav(); renderDays(); renderDetail();
+    if (!S.nickEdit) renderMine();
+    renderRoster();
+    if (fk) { var el = document.querySelector('[data-fk="' + fk + '"]'); if (el) el.focus(); }
+  }
+
+  /* ---------- upis dana ---------- */
+  function pick(key, status) {
+    var mine = S.days[S.email] || (S.days[S.email] = {});
+    var cur = statusOf(S.email, key), next = cur === status ? null : status;
+    S.mineMsg = "";
+    if (next === "home") {
+      var check = homeCheck(key);
+      if (!check.ok) { S.mineMsg = check.reason; renderApp(); return; }
+    }
+    if (next) mine[key] = next; else delete mine[key];
+    renderApp();
+    pending++;
+    chain = chain
+      .then(function () { return rpc("set_checkin", { p_day: key, p_status: next || "" }); })
+      .then(null, function (e) { S.mineMsg = errText(e, "Izmena nije sačuvana. Proveri vezu i pokušaj ponovo."); })
+      .then(function () { pending--; if (!pending) loadWeek().then(function () { if (S.view === "app") renderApp(); }); });
+  }
+
+  function goWeek(ws) { S.week = ws; S.sel = defaultSel(ws); S.mineMsg = ""; S.days = {}; S.weekLoaded = false; renderApp(); loadWeek(); }
+  $("prevWeek").addEventListener("click", function () { goWeek(addDays(S.week, -7)); });
+  $("nextWeek").addEventListener("click", function () { goWeek(addDays(S.week, 7)); });
+  $("thisWeek").addEventListener("click", function () { goWeek(defaultWeek()); });
+  $("btnSignOut").addEventListener("click", function () { signOut(); });
+
+  /* ====================================================================
+     ADMIN: podešavanja, članovi, prenos uloge
+     ==================================================================== */
+  function adminMsg(text) { var m = $("adminMsg"); m.textContent = text || ""; m.hidden = !text; }
+
+  function calcText() {
+    var size = clampInt($("fSize").value, 1, 500, S.cfg.size), office = clampInt($("fOffice").value, 0, 5, S.cfg.officeDays);
+    var total = size * office, min = Math.floor(total / WORKDAYS), rest = total % WORKDAYS;
+    var text = size + " " + plural(size, "član", "člana", "članova") + " × " + office + " " + plural(office, "dan", "dana", "dana") + " = " + total + " " + plural(total, "dolazak", "dolaska", "dolazaka") + " nedeljno. Raspoređeno na 5 radnih dana: najmanje " + min + " u kancelariji svakog dana.";
+    if (rest) text += " Ne deli se ravno, pa će " + rest + " " + plural(rest, "dan", "dana", "dana") + " u nedelji imati " + (min + 1) + ".";
+    $("fCalc").textContent = text;
+  }
+  function openAdmin() {
+    $("fTeam").value = S.cfg.teamName; $("fSize").value = S.cfg.size;
+    $("fOffice").value = S.cfg.officeDays; $("fHome").value = S.cfg.homeDays;
+    S.removeAsk = null; S.transferAsk = false;
+    calcText(); adminMsg(""); renderAdminLists();
+    $("admin").hidden = false; $("fTeam").focus();
+  }
+  $("btnAdmin").addEventListener("click", function () { if ($("admin").hidden) openAdmin(); else $("admin").hidden = true; });
+  $("adminClose").addEventListener("click", function () { $("admin").hidden = true; $("btnAdmin").focus(); });
+  $("fOffice").addEventListener("input", function () { if (this.value === "") return; $("fHome").value = WORKDAYS - clampInt(this.value, 0, 5, S.cfg.officeDays); calcText(); });
+  $("fHome").addEventListener("input", function () { if (this.value === "") return; $("fOffice").value = WORKDAYS - clampInt(this.value, 0, 5, S.cfg.homeDays); calcText(); });
+  $("fSize").addEventListener("input", calcText);
+
+  $("settingsForm").addEventListener("submit", function (e) {
+    e.preventDefault(); adminMsg("");
+    rpc("save_settings", {
+      p_team_name: $("fTeam").value.trim().slice(0, 60),
+      p_team_size: clampInt($("fSize").value, 1, 500, S.cfg.size),
+      p_office_days: clampInt($("fOffice").value, 0, 5, S.cfg.officeDays)
+    }).then(function () { toast("Podešavanja su sačuvana"); loadTeam(); }, function (err) { adminMsg(errText(err)); });
+  });
+
+  $("addForm").addEventListener("submit", function (e) {
+    e.preventDefault(); adminMsg("");
+    var email = $("fNewEmail").value.trim().toLowerCase(), name = $("fNewName").value.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { adminMsg(TEXT.BAD_EMAIL); $("fNewEmail").focus(); return; }
+    rpc("add_member", { p_email: email, p_name: name }).then(function () {
+      $("fNewEmail").value = ""; $("fNewName").value = ""; $("fNewEmail").focus();
+      toast("Dodat: " + email); loadTeam();
+    }, function (err) { adminMsg(errText(err)); });
+  });
+
+  function renderAdminLists() {
+    if (!S.isAdmin) return;
+    fill($("memberList"), sortByName(emails()).map(function (e) {
+      var m = member(e), asking = S.removeAsk === e;
+      var right;
+      if (m.isAdmin) right = null;
+      else if (asking) right = h("span", { class: "row" },
+        h("span", { class: "msg", text: "Brišu se i njegove prijave." }),
+        h("button", { class: "btn danger", type: "button", "data-fk": "rmy-" + e, text: "Ukloni", onclick: function () {
+          S.removeAsk = null; adminMsg("");
+          rpc("remove_member", { p_email: e }).then(function () { toast("Uklonjen: " + e); loadTeam(); loadWeek(); }, function (err) { adminMsg(errText(err)); renderAdminLists(); });
+        } }),
+        h("button", { class: "btn quiet", type: "button", text: "Odustani", onclick: function () { S.removeAsk = null; renderAdminLists(); } }));
+      else right = h("button", { class: "btn quiet", type: "button", "data-fk": "rm-" + e, text: "Ukloni", onclick: function () { S.removeAsk = e; renderAdminLists(); } });
+      return h("li", null,
+        h("span", { class: "id" }, h("b", null, nameOf(e), m.isAdmin ? h("span", { class: "tag", text: "admin" }) : null), h("span", { text: e })),
+        right);
+    }));
+
+    var box = $("transferBox"), others = sortByName(emails()).filter(function (e) { return e !== S.email; });
+    var prev = $("fTransfer") ? $("fTransfer").value : "";
+    if (!others.length) { fill(box, h("p", { class: "empty", text: "Dodaj bar jednog člana da bi mogao da preneseš ulogu." })); return; }
+    var select = h("select", { id: "fTransfer", "aria-label": "Novi admin" }, others.map(function (e) {
+      return h("option", { value: e, selected: e === prev, text: nameOf(e) + " (" + e + ")" });
+    }));
+    var kids = [h("div", { class: "row end" },
+      h("div", { class: "field" }, h("label", { for: "fTransfer", text: "Novi admin" }), select),
+      h("button", { class: "btn", type: "button", text: "Prenesi admin ulogu", onclick: function () { S.transferAsk = true; renderAdminLists(); } }))];
+    if (S.transferAsk) {
+      var target = prev && others.indexOf(prev) >= 0 ? prev : others[0];
+      kids.push(h("div", { class: "confirm" },
+        h("p", null, "Admin postaje ", h("strong", { text: nameOf(target) + " (" + target + ")" }), ". Ti više nećeš moći da menjaš podešavanja ni spisak. Ulogu ti može vratiti samo novi admin."),
+        h("div", { class: "row" },
+          h("button", { class: "btn primary", type: "button", text: "Potvrdi prenos", onclick: function () {
+            S.transferAsk = false; adminMsg("");
+            rpc("transfer_admin", { p_email: target }).then(function () {
+              $("admin").hidden = true; toast("Admin je sada " + nameOf(target)); loadTeam();
+            }, function (err) { adminMsg(errText(err)); renderAdminLists(); });
+          } }),
+          h("button", { class: "btn quiet", type: "button", text: "Odustani", onclick: function () { S.transferAsk = false; renderAdminLists(); } }))));
+    }
+    fill(box, kids);
+  }
+
+  /* ====================================================================
+     START
+     ==================================================================== */
+  var cfg = window.APP_CONFIG || {};
+  var configured = cfg.url && cfg.key && String(cfg.url).indexOf("TVOJ-PROJEKAT") < 0 && String(cfg.key).indexOf("NALEPI") < 0;
+  if (!configured || !window.supabase || typeof window.supabase.createClient !== "function") {
+    S.view = configured ? "error" : "setup";
+    if (configured) S.gateMsg = "Biblioteka za bazu nije učitana. Proveri internet vezu i osveži stranicu.";
+    renderGate();
+    return;
+  }
+  sb = window.supabase.createClient(cfg.url, cfg.key);
+  show();
+  sb.auth.onAuthStateChange(function (event, session) {
+    var uid = session && session.user ? session.user.id : null;
+    if (uid === sessionUser) return;             // obnova tokena, isti korisnik
+    sessionUser = uid;
+    setTimeout(function () { enter(session); }, 0);
+  });
+})();
+</script>
+</body>
+</html>
