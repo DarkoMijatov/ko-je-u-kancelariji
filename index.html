@@ -5,10 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ko je u kancelariji</title>
 
+<!-- =====================================================================
+     JEDINA DVA REDA KOJA MENJAŠ
+     Oba podatka su u Supabase projektu: Settings > API Keys.
+     Publishable ključ sme da bude javan; pristup podacima čuvaju pravila u bazi.
+     ===================================================================== -->
 <script>
   window.APP_CONFIG = {
-    url: "https://heyvzwokdjvtsczxwljy.supabase.co",
-    key: "sb_publishable_Ulof1v8APSewgE6uZYW37Q_1Xs_2lyS"
+    url: "https://TVOJ-PROJEKAT.supabase.co",
+    key: "NALEPI_PUBLISHABLE_KLJUC"
   };
 </script>
 
@@ -104,6 +109,8 @@ input[type="text"], input[type="email"], input[type="number"], select {
 .field { display: grid; gap: 4px; min-width: 0; }
 .field label { font-size: 13px; font-weight: 500; color: var(--muted); }
 .block { display: grid; gap: 12px; }
+.check { display: flex; gap: 10px; align-items: center; font-weight: 500; }
+.check input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
 .calc { background: var(--accent-soft); border-radius: 8px; padding: 10px 12px; }
 .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .row.end { align-items: flex-end; }
@@ -261,6 +268,7 @@ td.num { white-space: nowrap; }
           <div class="field"><label for="fOffice">Dana iz kancelarije nedeljno</label><input id="fOffice" type="number" min="0" max="5" step="1" inputmode="numeric"></div>
           <div class="field"><label for="fHome">Dana od kuće nedeljno</label><input id="fHome" type="number" min="0" max="5" step="1" inputmode="numeric"></div>
         </div>
+        <label class="check" for="fMonFri"><input id="fMonFri" type="checkbox"> Zabrani rad od kuće i u ponedeljak i u petak iste nedelje</label>
         <p class="calc" id="fCalc"></p>
         <div class="row"><button class="btn primary" type="submit">Sačuvaj podešavanja</button></div>
         <p class="help">Dani iz kancelarije i dani od kuće zajedno daju 5 radnih dana, pa se drugo polje samo prilagođava.</p>
@@ -352,7 +360,7 @@ td.num { white-space: nowrap; }
     gateEmail: "", gateMsg: "", gateBusy: false,
     sessionEmail: "",
     email: null, isAdmin: false,
-    cfg: { teamName: "", size: 10, officeDays: 2, homeDays: 3 },
+    cfg: { teamName: "", size: 10, officeDays: 2, homeDays: 3, noMonFri: false },
     members: [], teamLoaded: false,
     days: {}, weekLoaded: false,
     week: defaultWeek(), sel: null,
@@ -407,6 +415,10 @@ td.num { white-space: nowrap; }
       var s = statusOf(S.email, k);
       if (s === "home") home++; else if (s === "off") off++;
     });
+    var idx = (d.getDay() + 6) % 7;
+    if (S.cfg.noMonFri && (idx === 0 || idx === 4) && statusOf(S.email, keys[idx === 0 ? 4 : 0]) === "home") {
+      return { ok: false, reason: TEXT.MON_FRI };
+    }
     var limit = homeLimit(off);
     if (home >= limit) return { ok: false, reason: limit === 0 ? TEXT.HOME_NONE : homeLimitText(home) };
     var c = counts(key), min = minPerDay();
@@ -421,6 +433,8 @@ td.num { white-space: nowrap; }
     HOME_NONE: "Ove nedelje nemaš dana od kuće na raspolaganju.",
     HOME_LIMIT: "Dostigao si nedeljni maksimum dana od kuće.",
     HOME_FULL: "Rad od kuće je za taj dan popunjen, izaberi drugi dan.",
+    MON_FRI_CONFLICT: "Pravilo za ponedeljak i petak traži bar 1 dan u kancelariji. Isključi pravilo ili povećaj broj dana iz kancelarije.",
+    MON_FRI: "Ne možeš da radiš od kuće i u ponedeljak i u petak iste nedelje.",
     NOT_MEMBER: "Tvoja adresa više nije na spisku tima.",
     NOT_ADMIN: "Ovo može samo admin tima.",
     NOT_WORKDAY: "Prijava je moguća samo za radne dane.",
@@ -532,6 +546,7 @@ td.num { white-space: nowrap; }
     var m = ((e && e.message) || "").toLowerCase(), code = (e && e.code) || "";
     if (e && e.status === 403 && m.indexOf("spisku") >= 0) return "Ova adresa nije na spisku tima. Zamoli admina da te doda.";
     if (code === "over_email_send_rate_limit" || m.indexOf("rate limit") >= 0 || (e && e.status === 429)) return "Previše zahteva za kratko vreme. Sačekaj minut pa pokušaj ponovo.";
+    if (code === "unexpected_failure" || m.indexOf("error sending") >= 0) return "Baza nije uspela da pošalje mejl. Admin treba da proveri SMTP podešavanja u Supabase-u.";
     if (m.indexOf("not authorized") >= 0) return "Slanje mejlova još nije podešeno u bazi (SMTP). Javi adminu tima.";
     if (code === "otp_expired" || m.indexOf("expired") >= 0 || m.indexOf("invalid") >= 0) return "Kod nije ispravan ili je istekao. Zatraži novi.";
     if (m.indexOf("signups not allowed") >= 0) return "Prijava novih adresa je isključena u bazi. Javi adminu tima.";
@@ -600,14 +615,14 @@ td.num { white-space: nowrap; }
 
   function loadTeam() {
     return Promise.all([
-      sb.from("team_settings").select("team_name,team_size,office_days").maybeSingle(),
+      sb.from("team_settings").select("*").maybeSingle(),
       sb.from("members").select("email,display_name,is_admin").order("email")
     ]).then(function (r) {
       if (r[0].error || r[1].error || S.view !== "app") return;
       var t = r[0].data;
       if (t) {
         var o = clampInt(t.office_days, 0, 5, 2);
-        S.cfg = { teamName: t.team_name || "", size: clampInt(t.team_size, 1, 500, 10), officeDays: o, homeDays: WORKDAYS - o };
+        S.cfg = { teamName: t.team_name || "", size: clampInt(t.team_size, 1, 500, 10), officeDays: o, homeDays: WORKDAYS - o, noMonFri: t.no_mon_fri_home === true };
       }
       S.members = (r[1].data || []).map(function (m) { return { email: m.email, name: m.display_name || "", isAdmin: !!m.is_admin }; });
       var me = member(S.email);
@@ -662,7 +677,8 @@ td.num { white-space: nowrap; }
     fill($("rule"), [
       h("strong", { text: c.officeDays + " " + plural(c.officeDays, "dan", "dana", "dana") + " iz kancelarije" }),
       ", do " + c.homeDays + " od kuće. Tim od " + c.size + " " + plural(c.size, "člana", "člana", "članova") + ": ",
-      h("strong", { text: "najmanje " + min + " u kancelariji svakog dana" }), "."
+      h("strong", { text: "najmanje " + min + " u kancelariji svakog dana" }), ".",
+      c.noMonFri ? " Ponedeljak i petak iste nedelje ne mogu oba od kuće." : null
     ]);
     $("who").textContent = S.email + (S.isAdmin ? " · admin" : "");
     $("btnAdmin").hidden = !S.isAdmin;
@@ -856,11 +872,18 @@ td.num { white-space: nowrap; }
     var total = size * office, min = Math.floor(total / WORKDAYS), rest = total % WORKDAYS;
     var text = size + " " + plural(size, "član", "člana", "članova") + " × " + office + " " + plural(office, "dan", "dana", "dana") + " = " + total + " " + plural(total, "dolazak", "dolaska", "dolazaka") + " nedeljno. Raspoređeno na 5 radnih dana: najmanje " + min + " u kancelariji svakog dana.";
     if (rest) text += " Ne deli se ravno, pa će " + rest + " " + plural(rest, "dan", "dana", "dana") + " u nedelji imati " + (min + 1) + ".";
+    if ($("fMonFri").checked) {
+      var home = WORKDAYS - office, cap = size - min, wanted = size * home;
+      /* Najviše dana od kuće koje tim može da iskoristi: utorak-četvrtak do kapaciteta, a ponedeljak ili petak najviše jedan po osobi. */
+      var most = Math.min(wanted, Math.min(3 * cap, size * Math.min(home, 3)) + Math.min(2 * cap, size));
+      if (office === 0) text += " " + TEXT.MON_FRI_CONFLICT;
+      else if (most < wanted) text += " Uz pravilo za ponedeljak i petak tim može da iskoristi najviše " + most + " od " + wanted + " dana od kuće nedeljno. Ostatak se provodi u kancelariji ponedeljkom i petkom, pa ko se prijavi poslednji može dobiti manje dana od kuće.";
+    }
     $("fCalc").textContent = text;
   }
   function openAdmin() {
     $("fTeam").value = S.cfg.teamName; $("fSize").value = S.cfg.size;
-    $("fOffice").value = S.cfg.officeDays; $("fHome").value = S.cfg.homeDays;
+    $("fOffice").value = S.cfg.officeDays; $("fHome").value = S.cfg.homeDays; $("fMonFri").checked = S.cfg.noMonFri;
     S.removeAsk = null; S.transferAsk = false;
     calcText(); adminMsg(""); renderAdminLists();
     $("admin").hidden = false; $("fTeam").focus();
@@ -870,13 +893,16 @@ td.num { white-space: nowrap; }
   $("fOffice").addEventListener("input", function () { if (this.value === "") return; $("fHome").value = WORKDAYS - clampInt(this.value, 0, 5, S.cfg.officeDays); calcText(); });
   $("fHome").addEventListener("input", function () { if (this.value === "") return; $("fOffice").value = WORKDAYS - clampInt(this.value, 0, 5, S.cfg.homeDays); calcText(); });
   $("fSize").addEventListener("input", calcText);
+  $("fMonFri").addEventListener("change", calcText);
 
   $("settingsForm").addEventListener("submit", function (e) {
     e.preventDefault(); adminMsg("");
+    if ($("fMonFri").checked && clampInt($("fOffice").value, 0, 5, S.cfg.officeDays) === 0) { adminMsg(TEXT.MON_FRI_CONFLICT); return; }
     rpc("save_settings", {
       p_team_name: $("fTeam").value.trim().slice(0, 60),
       p_team_size: clampInt($("fSize").value, 1, 500, S.cfg.size),
-      p_office_days: clampInt($("fOffice").value, 0, 5, S.cfg.officeDays)
+      p_office_days: clampInt($("fOffice").value, 0, 5, S.cfg.officeDays),
+      p_no_mon_fri: $("fMonFri").checked
     }).then(function () { toast("Podešavanja su sačuvana"); loadTeam(); }, function (err) { adminMsg(errText(err)); });
   });
 
